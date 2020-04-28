@@ -46,12 +46,17 @@ class WalkHistory: NSObject, Identifiable, NSCoding {
     
     // 距離計算
     private func getDistance(checkpoints: [CheckPoint]) -> Double {
-        guard let first = checkpoints.first else { return 0.0 }
-        guard let last = checkpoints.last else { return 0.0 }
-        
-        let firstLocation = CLLocation(latitude: first.latitude, longitude: first.longitude)
-        let lastLocation = CLLocation(latitude: last.latitude, longitude: last.longitude)
-        return firstLocation.distance(from: lastLocation)
+        var totalDistance: Double = 0.0
+        for (index, checkpoint) in checkpoints.enumerated() {
+            let nextIndex = index + 1
+            if nextIndex < checkpoints.count {
+                let next = checkpoints[nextIndex]
+                let location = CLLocation(latitude: checkpoint.latitude, longitude: checkpoint.longitude)
+                let nextLocation = CLLocation(latitude: next.latitude, longitude: next.longitude)
+                totalDistance += location.distance(from: nextLocation)
+            }
+        }
+        return totalDistance
     }
 }
 
