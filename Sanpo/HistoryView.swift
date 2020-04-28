@@ -14,6 +14,8 @@ struct HistoryView: View {
     @Binding var checkPoints: [CheckPoint]
     @Binding var history: [WalkHistory]
     let isRecording: Bool
+    @Binding var showDistance: Bool
+    @Binding var distance: Double
 
     @State private var showAlert = false
     @State private var activeAlert: ActiveAlert = .recording
@@ -50,6 +52,10 @@ struct HistoryView: View {
                                 self.showAlert.toggle()
                             } else {
                                 self.checkPoints = walk.getCheckPoints()
+                                self.distance = walk.distance
+                                withAnimation(.easeInOut(duration: 1.0)) {
+                                    self.showDistance = true
+                                }
                                 self.shouldShowAllPins = true
                                 self.presentationMode.wrappedValue.dismiss()
                             }
@@ -93,6 +99,8 @@ struct HistoryView_Previews: PreviewProvider {
         HistoryView(shouldShowAllPins: .constant(false),
                     checkPoints: .constant([]),
                     history: .constant(MockData.history),
-                    isRecording: false)
+                    isRecording: false,
+                    showDistance: .constant(false),
+                    distance: .constant(0.0))
     }
 }

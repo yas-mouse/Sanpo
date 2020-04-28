@@ -21,48 +21,43 @@ struct ContentView: View {
     @State var shouldGoCurrent = false
     @State var shouldShowAllPins = false
     @State private var showHistory = false
-
-    private func start() {
-        self.timer?.invalidate()
-        self.locationManager.startBackGround()
-
-        self.checkPoints = []
-        let addCheckpoint = {
-            let checkpoint = CheckPoint(title: "\(self.checkPoints.count + 1)", coordinate: self.locationManager.coordinate)
-            self.lastCheckpoint = checkpoint
-            self.checkPoints.append(checkpoint)
-        }
-        self.timer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { timer in
-            addCheckpoint()
-        }
-    }
-    
-    private func stop() {
-        self.timer?.invalidate()
-        self.locationManager.stopBackGround()
-
-        self.history.append(WalkHistory(Date(), self.checkPoints))
-        HistoryDataManager.setAll(walkHistoryList: self.history)
-    }
+    @State private var showDistance = false
+    @State var distance: Double = 0.0
         
     var body: some View {
         VStack {
-            ZStack(alignment: .bottomTrailing) {
-                MapView(coordinate: self.locationManager.coordinate,
-                        checkPoints: checkPoints,
-                        lastCheckPoint: $lastCheckpoint,
-                        shouldGoCurrent: $shouldGoCurrent,
-                        shouldShowAllPins: $shouldShowAllPins)
-                    .edgesIgnoringSafeArea(.top)
-
-                Button(action: {
-                    self.shouldGoCurrent = true
-                }) {
-                    Image(systemName: "location.fill")
-                        .imageScale(.large)
-                        .padding(.bottom, 40.0)
-                        .padding(.trailing, 10.0)
+            ZStack(alignment: .top) {
+                ZStack(alignment: .bottomTrailing) {
+                    MapView(coordinate: self.locationManager.coordinate,
+                            checkPoints: checkPoints,
+                            lastCheckPoint: $lastCheckpoint,
+                            shouldGoCurrent: $shouldGoCurrent,
+                            shouldShowAllPins: $shouldShowAllPins)
+                        .edgesIgnoringSafeArea(.top)
+                    
+                    Button(action: {
+                        self.shouldGoCurrent = true
+                    }) {
+                        Image(systemName: "location.fill")
+                            .imageScale(.large)
+                            .padding(.bottom, 40.0)
+                            .padding(.trailing, 10.0)
+                    }
                 }
+                
+                if showDistance {
+                    Text("Distance: \(String(format: "%.0f", distance)) meters")
+                        .foregroundColor(.black)
+                        .background(
+                            Capsule()
+                                .frame(width: 200, height: 50)
+                                .shadow(color: .gray, radius: 20)
+                                .foregroundColor(.white)
+                        )
+                        .padding(.top, 20.0)
+                        .transition(.opacity)
+                }
+
             }
             
             ZStack {
@@ -79,7 +74,9 @@ struct ContentView: View {
                         HistoryView(shouldShowAllPins: self.$shouldShowAllPins,
                                     checkPoints: self.$checkPoints,
                                     history: self.$history,
-                                    isRecording: self.isRecording)
+                                    isRecording: self.isRecording,
+                                    showDistance: self.$showDistance,
+                                    distance: self.$distance)
                             .onDisappear {
                                 HistoryDataManager.setAll(walkHistoryList: self.history)
                         }
@@ -105,6 +102,32 @@ struct ContentView: View {
         }.onAppear {
             self.history = HistoryDataManager.load()
         }
+    }
+    
+    // 距離計測スタート
+    private func start() {
+        self.timer?.invalidate()
+        self.locationManager.startBackGround()
+
+        self.showDistance = false
+        self.checkPoints = []
+        let addCheckpoint = {
+            let checkpoint = CheckPoint(title: "\(self.checkPoints.count + 1)", coordinate: self.locationManager.coordinate)
+            self.lastCheckpoint = checkpoint
+            self.checkPoints.append(checkpoint)
+        }
+        self.timer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { timer in
+            addCheckpoint()
+        }
+    }
+    
+    // 距離計測ストップ
+    private func stop() {
+        self.timer?.invalidate()
+        self.locationManager.stopBackGround()
+
+        self.history.append(WalkHistory(Date(), self.checkPoints))
+        HistoryDataManager.setAll(walkHistoryList: self.history)
     }
 }
 
