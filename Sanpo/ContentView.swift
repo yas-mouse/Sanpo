@@ -116,7 +116,7 @@ struct ContentView: View {
             self.lastCheckpoint = checkpoint
             self.checkPoints.append(checkpoint)
         }
-        self.timer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { timer in
+        self.timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { timer in
             addCheckpoint()
         }
     }
