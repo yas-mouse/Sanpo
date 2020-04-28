@@ -51,7 +51,7 @@ struct ContentView: View {
                         .background(
                             Capsule()
                                 .frame(width: 200, height: 50)
-                                .shadow(color: .gray, radius: 20)
+                                .shadow(color: .gray, radius: 5.0)
                                 .foregroundColor(.white)
                         )
                         .padding(.top, 20.0)
