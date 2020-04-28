@@ -65,11 +65,16 @@ struct MapView: UIViewRepresentable {
 extension MapView {
     
     private func drawAllPins(mapView: MKMapView, checkpoints: [CheckPoint]) {
-        checkpoints.forEach { checkpoint in
-            mapView.addAnnotation(checkpoint)
+        if checkpoints.isEmpty {
+            return
         }
-        
-        let coordinates = checkpoints.compactMap { $0.coordinate }
+
+        var coordinates: [CLLocationCoordinate2D] = []
+        for checkpoint in checkpoints {
+            mapView.addAnnotation(checkpoint)
+            coordinates.append(checkpoint.coordinate)
+        }
+
         let polyLine = MKPolyline(coordinates: coordinates, count: coordinates.count)
         let rect = polyLine.boundingMapRect
         mapView.setRegion(MKCoordinateRegion(rect), animated: true)
